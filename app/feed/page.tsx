@@ -8,74 +8,74 @@ import { Avatar } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 
-// Mock posts data
-const MOCK_POSTS = [
-    {
-        id: 1,
-        author: {
-            name: "Sarah Chen",
-            username: "@sarahchen",
-            avatar: "SC"
-        },
-        content: {
-            type: "text",
-            text: "Just finished building an amazing AI-powered resume analyzer! 🚀 The future of job applications is here."
-        },
-        votes: 142,
-        comments: 23,
-        timestamp: "2h ago"
-    },
-    {
-        id: 2,
-        author: {
-            name: "Marcus Rodriguez",
-            username: "@marcusr",
-            avatar: "MR"
-        },
-        content: {
-            type: "image-text",
-            text: "Loving the new monochrome design trend in web development. Clean, minimal, and powerful.",
-            image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600&fit=crop"
-        },
-        votes: 89,
-        comments: 12,
-        timestamp: "4h ago"
-    },
-    {
-        id: 3,
-        author: {
-            name: "Emma Watson",
-            username: "@emmaw",
-            avatar: "EW"
-        },
-        content: {
-            type: "image",
-            image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&h=600&fit=crop"
-        },
-        votes: 234,
-        comments: 45,
-        timestamp: "6h ago"
-    },
-    {
-        id: 4,
-        author: {
-            name: "David Kim",
-            username: "@davidk",
-            avatar: "DK"
-        },
-        content: {
-            type: "text",
-            text: "Pro tip: Always validate your forms client-side AND server-side. Security is not optional! 🔒"
-        },
-        votes: 67,
-        comments: 8,
-        timestamp: "8h ago"
-    }
-]
+import { type Post } from "@/lib/data"
+import { cn } from "@/lib/utils"
 
-function Post({ post, onPostClick }: {
-    post: typeof MOCK_POSTS[0],
-    onPostClick: (post: typeof MOCK_POSTS[0]) => void
+// Comment Item Component with Voting
+function CommentItem({ comment }: { comment: any }) {
+    const [upvotes, setUpvotes] = useState(0)
+    const [downvotes, setDownvotes] = useState(0)
+    const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(null)
+
+    const handleVote = (type: 'up' | 'down') => {
+        if (voteStatus === type) {
+            if (type === 'up') setUpvotes(upvotes - 1)
+            else setDownvotes(downvotes - 1)
+            setVoteStatus(null)
+        } else if (voteStatus === null) {
+            if (type === 'up') setUpvotes(upvotes + 1)
+            else setDownvotes(downvotes - 1)
+            setVoteStatus(type)
+        } else {
+            if (type === 'up') {
+                setUpvotes(upvotes + 1)
+                setDownvotes(downvotes - 1)
+            } else {
+                setDownvotes(downvotes + 1)
+                setUpvotes(upvotes - 1)
+            }
+            setVoteStatus(type)
+        }
+    }
+
+    return (
+        <div className="flex gap-3">
+            <Avatar className="size-8 bg-accent/20 text-accent flex items-center justify-center font-mono text-xs flex-shrink-0">
+                {comment.avatar}
+            </Avatar>
+            <div className="flex-1 min-w-0">
+                <div className="bg-muted/30 rounded-lg px-3 py-2">
+                    <h4 className="font-medium text-xs mb-1">{comment.author}</h4>
+                    <p className="text-sm break-words">{comment.text}</p>
+                </div>
+                <div className="flex items-center gap-4 mt-1 ml-1">
+                    <span className="text-xs text-muted-foreground">{comment.timestamp}</span>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handleVote('up')}
+                            className={cn("flex items-center gap-1 text-xs hover:text-accent transition-colors", voteStatus === 'up' && "text-accent")}
+                        >
+                            <ArrowUp className="size-3" />
+                            <span>{upvotes}</span>
+                        </button>
+                        <button
+                            onClick={() => handleVote('down')}
+                            className={cn("flex items-center gap-1 text-xs hover:text-destructive transition-colors", voteStatus === 'down' && "text-destructive")}
+                        >
+                            <ArrowDown className="size-3" />
+                            <span>{downvotes}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function Post({ post, onPostClick, onCommentClick }: {
+    post: Post,
+    onPostClick: (post: Post) => void,
+    onCommentClick: (postId: number) => void
 }) {
     const [upvotes, setUpvotes] = useState(Math.floor(post.votes * 0.6)) // 60% upvotes
     const [downvotes, setDownvotes] = useState(Math.floor(post.votes * 0.4)) // 40% downvotes
@@ -189,7 +189,10 @@ function Post({ post, onPostClick }: {
                     variant="ghost"
                     size="sm"
                     className="gap-2"
-                    onClick={() => onPostClick(post)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onCommentClick(post.id);
+                    }}
                 >
                     <MessageCircle className="size-4" />
                     <span className="text-xs">{post.comments}</span>
@@ -201,7 +204,7 @@ function Post({ post, onPostClick }: {
 
 export default function FeedPage() {
     const router = useRouter()
-    const [posts, setPosts] = useState(MOCK_POSTS)
+    const [posts, setPosts] = useState<Post[]>([])
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [postText, setPostText] = useState("")
     const [uploadedFile, setUploadedFile] = useState<File | null>(null)
@@ -275,7 +278,8 @@ export default function FeedPage() {
             } as any,
             votes: 0,
             comments: 0,
-            timestamp: "Just now"
+            timestamp: "Just now",
+            status: 'active' as const
         }
 
         // Add new post to the top of the feed
@@ -294,7 +298,7 @@ export default function FeedPage() {
         setCommentText("")
     }
 
-    const handlePostClick = (post: typeof posts[0]) => {
+    const handlePostClick = (post: Post) => {
         // Save post data and current comments to localStorage
         localStorage.setItem('currentPost', JSON.stringify(post))
         localStorage.setItem('postComments', JSON.stringify(comments))
@@ -349,19 +353,38 @@ export default function FeedPage() {
 
             {/* Main Feed */}
             <div className="relative z-10 min-h-screen">
-                {/* Header */}
-                <header className="sticky top-0 backdrop-blur-lg bg-background/80 border-b border-border z-20">
-                    <div className="max-w-2xl mx-auto px-4 py-4">
-                        <h1 className="text-2xl font-bold">Feed</h1>
+                {/* Logo Header */}
+                <header className="sticky top-0 z-20 backdrop-blur-lg bg-background/80 border-b border-border/40">
+                    <div className="w-full px-6 py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            {/* Logo Icon */}
+                            <div className="size-8 text-foreground flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="size-8">
+                                    <path d="M21.576 4.673c-1.353 1.055-3.085 1.724-5.32 1.76l.044-1.296c0-.988-.8-1.788-1.787-1.788-.988 0-1.788.8-1.788 1.788v.572C10.824 5.253 9.4 4.545 8.448 3.35c.427 3.515-2.22 5.06-2.22 5.06s.907 2.656 2.454 4.148c0 0-1.602 1.127-4.636 1.786 2.502.935 5.51 1.045 7.643 1.045 2.134 0 5.142-.11 7.644-1.045-3.033-.66-4.636-1.787-4.636-1.787 1.547-1.492 2.454-4.148 2.454-4.148s-2.647-1.545-2.22-5.06c-.952 1.195-2.376 1.903-4.277 2.36v-.572c0-.988-.8-1.788-1.788-1.788-.987 0-1.787.8-1.787 1.788l.044 1.296c-2.235-.036-3.967-.705-5.32-1.76.924 2.87 3.342 4.095 3.342 4.095s.31 1.756 1.155 2.217c0 0-.58 2.062 1.058 3.51.52.46 1.54.912 2.922.912 1.38 0 2.402-.452 2.92-2.92-2.92-.91 1.637-.21 1.058-3.51.846-.46 1.155-2.217 1.155-2.217s2.418-1.225 3.342-4.095z" />
+                                    <path d="M12 13c.8 0 1.5.5 1.8 1.2.3.7.1 1.5-.4 2.1-.5.6-1.4.7-2.1.3-.7-.4-1.1-1.2-1.1-2 .1-1 .9-1.8 1.8-1.6z" />
+                                    {/* Simplified Batman-like shape or use a path from a known icon set if needed. Using a generic bat shape here for illustration. Detailed path replacement below. */}
+                                    {/* Better Bat Path */}
+                                    <path d="M22 8.5c-2 0-3.5 1-4.5 2.5-.5-2-2-3-3.5-3-.5 1-1 3-2 3s-1.5-2-2-3c-1.5 0-3 1-3.5 3-1-1.5-2.5-2.5-4.5-2.5 0 3 2 6.5 5 8 1 2.5 3 2.5 4 2.5 1 0 3 0 4-2.5 3-1.5 5-5 5-8z" fill="currentColor" />
+                                </svg>
+                            </div>
+                            <h1 className="font-[var(--font-bebas)] text-3xl tracking-wide">VENGEANCE</h1>
+                        </div>
                     </div>
                 </header>
 
                 {/* Feed Content */}
                 <div className="max-w-2xl mx-auto px-4 py-6">
                     <div className="space-y-6">
-                        {posts.map((post) => (
-                            <Post key={post.id} post={post} onCommentClick={handleCommentClick} onPostClick={handlePostClick} />
-                        ))}
+                        {posts.length === 0 ? (
+                            <div className="text-center py-20 opacity-50 space-y-4">
+                                <div className="font-[var(--font-bebas)] text-4xl tracking-wide">NO ACTIVE SIGNALS</div>
+                                <p className="font-mono text-sm">The network is silent. Be the first to broadcast.</p>
+                            </div>
+                        ) : (
+                            posts.map((post) => (
+                                <Post key={post.id} post={post} onCommentClick={handleCommentClick} onPostClick={handlePostClick} />
+                            ))
+                        )}
                     </div>
                 </div>
 
@@ -533,18 +556,7 @@ export default function FeedPage() {
                                     ) : (
                                         /* Display comments */
                                         postComments.map((comment) => (
-                                            <div key={comment.id} className="flex gap-3">
-                                                <Avatar className="size-8 bg-accent/20 text-accent flex items-center justify-center font-mono text-xs flex-shrink-0">
-                                                    {comment.avatar}
-                                                </Avatar>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="bg-muted/30 rounded-lg px-3 py-2">
-                                                        <h4 className="font-medium text-xs mb-1">{comment.author}</h4>
-                                                        <p className="text-sm break-words">{comment.text}</p>
-                                                    </div>
-                                                    <p className="text-xs text-muted-foreground mt-1 ml-3">{comment.timestamp}</p>
-                                                </div>
-                                            </div>
+                                            <CommentItem key={comment.id} comment={comment} />
                                         ))
                                     )}
                                 </div>

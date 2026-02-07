@@ -6,12 +6,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-// Demo credentials for testing
-const DEMO_CREDENTIALS = {
-    email: "demo@example.com",
-    password: "demo1234"
-}
-
 export default function SignInPage() {
     const router = useRouter()
     const [email, setEmail] = useState("")
@@ -41,17 +35,10 @@ export default function SignInPage() {
         e.preventDefault()
 
         if (validateForm()) {
-            // Check demo credentials
-            if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
-                console.log("✅ Demo login successful!")
-                // Redirect to feed page
-                router.push("/feed")
-            } else {
-                setErrors({
-                    email: "Invalid credentials. Please use the demo credentials shown above.",
-                    password: " "
-                })
-            }
+            // Simulate successful login
+            console.log("✅ Login successful!")
+            // Redirect to feed page
+            router.push("/feed")
         }
     }
 
@@ -74,30 +61,6 @@ export default function SignInPage() {
                         <p className="text-muted-foreground">
                             Sign in to your account
                         </p>
-                    </div>
-
-                    {/* Demo credentials info */}
-                    <div className="mb-6 p-4 border border-accent/30 bg-accent/5 rounded-lg">
-                        <div className="flex items-start gap-2">
-                            <div className="mt-0.5">
-                                <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-xs font-medium text-accent mb-2">Demo Credentials</p>
-                                <div className="space-y-1 font-mono text-xs">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-muted-foreground">Email:</span>
-                                        <span className="text-foreground">{DEMO_CREDENTIALS.email}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-muted-foreground">Password:</span>
-                                        <span className="text-foreground">{DEMO_CREDENTIALS.password}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Form */}

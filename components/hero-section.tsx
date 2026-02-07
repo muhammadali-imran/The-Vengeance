@@ -48,20 +48,25 @@ export function HeroSection() {
       <div ref={contentRef} className="flex-1 w-full">
         <SplitFlapAudioProvider>
           <div className="relative">
-            <SplitFlapText text="INTERFACE" speed={80} />
+            <SplitFlapText text="VENGEANCE" speed={80} />
             <div className="mt-4">
               <SplitFlapMuteToggle />
             </div>
           </div>
         </SplitFlapAudioProvider>
 
-        <h2 className="font-[var(--font-bebas)] text-muted-foreground/60 text-[clamp(1rem,3vw,2rem)] mt-4 tracking-wide">
-          Studies in Controlled Environments
+        <h2 className="font-[var(--font-bebas)] text-muted-foreground/80 text-[clamp(1rem,3vw,2rem)] mt-4 tracking-wide">
+          DECENTRALIZED CAMPUS RUMOR NETWORK
         </h2>
 
-        <p className="mt-12 max-w-md font-mono text-sm text-muted-foreground leading-relaxed">
-          We design systems that behave, not just screens that display. Signals from the edge of what&apos;s shippable.
-        </p>
+        <div className="mt-8 max-w-2xl font-mono text-sm text-muted-foreground/80 space-y-6 leading-relaxed">
+          <p>
+            An anonymous, decentralized campus rumor system where students submit and verify claims without a central authority.
+          </p>
+          <p>
+            Trust scores evolve using cryptographic one person one vote proofs, evidence staking, and contradiction graphs so popularity and bots can’t dominate.
+          </p>
+        </div>
 
         <div className="mt-16 flex items-center gap-8">
           <a
@@ -71,21 +76,11 @@ export function HeroSection() {
             <ScrambleTextOnHover text="GET STARTED" as="span" duration={0.6} />
             <BitmapChevron className="transition-transform duration-[400ms] ease-in-out group-hover:rotate-45" />
           </a>
-          <a
-            href="#signals"
-            className="font-mono text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors duration-200"
-          >
-            Latest Signals
-          </a>
+
         </div>
       </div>
 
-      {/* Floating info tag */}
-      <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12">
-        <div className="border border-border px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          v.01 / Experimental Build
-        </div>
-      </div>
+
     </section>
   )
 }
