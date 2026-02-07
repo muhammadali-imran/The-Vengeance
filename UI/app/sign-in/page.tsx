@@ -18,8 +18,8 @@ export default function SignInPage() {
         // Email validation
         if (!email) {
             newErrors.email = "Email is required"
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            newErrors.email = "Please enter a valid email address"
+        } else if (!email.endsWith("@nust.edu.pk")) {
+            newErrors.email = "Please enter a valid NUST email address (@nust.edu.pk)"
         }
 
         // Password validation
